@@ -1,20 +1,31 @@
 <template>
   <div id="app">
-    <h2>Filtrify Photo</h2>
-    <div class="photo--container">
-      <img 
-        class="photo--image" 
-        :src="imageSource" 
-        alt="">
-    </div>
-    <div class="image-loader container">
-      <div class="form-group">
-        <label for="custom-image-input">Custom Image URL</label>
-        <input type="text" class="form-control" id="custom-image-input" v-model="imageSource">
-      </div>
-    </div>
-    <div class="filter-panel">
+    <nav class="navbar">
+      <p class="navbar-brand mb-0 py-0">Filtrify Photo</p>
+    </nav>
+    
+    <div class="layout-grid">
+      <div class="control-panel">
+        <div class="image-loader container">
+          <div class="form-group">
+            <label for="custom-image-input">Image URL</label>
+            <input type="text" class="form-control" id="custom-image-input" v-model="image.source">
+          </div>
+        </div>
 
+        <div class="filter-panel">
+
+        </div>
+        
+      </div>
+      
+      <section class="photo--container my-4">
+        <img 
+          class="photo--image card" 
+          :src="image.source" 
+          alt="">
+      </section>
+      
     </div>
   </div>
 </template>
@@ -25,7 +36,12 @@ export default {
   name: 'app',
   data () {
     return { 
-      imageSource: '',
+      image: {
+        source: '',
+        maxWidth: '90%',
+        userSetWidth: ''
+      },
+
       filters: {
         blur: 0,          // px
         brightness: 0,    // %
@@ -48,15 +64,33 @@ export default {
 
 #app {
   font-family: 'Avenir', Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
+  color: #0f0f0f;
+  height: 100vh;
+  background-color: rgb(246, 246, 246);
+  position: relative;
+}
+
+.navbar {
+  background-color: rgb(15, 15, 15);
+  color: rgb(246, 246, 246);
+  height: 3rem;
+}
+
+.layout-grid {
+  display: grid;
+  grid-template-columns: 1fr 4fr;
+  height: calc(100% - 3rem);
+}
+
+.control-panel {
+  
+}
+
+.filter-panel {
+  border-top: 1px solid #000;
 }
 
 .photo--container {
-  min-height: 80vh;
   display: flex;
   flex: 1;
   justify-content: center;
@@ -64,6 +98,10 @@ export default {
 }
 
 .photo--image {
-  max-height: 80vh;
+  max-width: 90%;
+  border: 1px solid #212121;
 }
+
+
+
 </style>
