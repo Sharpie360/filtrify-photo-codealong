@@ -19,9 +19,9 @@
         
       </div>
       
-      <section class="photo--container my-4">
+      <section class="display-container my-4">
         <img 
-          class="photo--image card" 
+          class="display-image card" 
           :src="image.source" 
           alt="">
       </section>
@@ -90,14 +90,14 @@ export default {
   border-top: 1px solid #000;
 }
 
-.photo--container {
+.display-container {
   display: flex;
   flex: 1;
   justify-content: center;
   align-items: center;
 }
 
-.photo--image {
+.display-image {
   max-width: 90%;
   border: 1px solid #212121;
 }
