@@ -9,17 +9,36 @@
 
         <div class="image--loader px-3 pt-2">
           <div class="form-group">
-            <label for="custom-image-input">
+            <label 
+              for="custom-image-input"
+              class="mb-0">
               <h4>Image URL</h4>
             </label>
             <input type="text" class="form-control" id="custom-image-input" v-model="image.source">
+          </div>
+          <div class="form-group">
+            <label for="user-set-width-input">Image Size</label>
+            <input 
+              type="range" 
+              id="user-set-width-input" 
+              class="form-control"
+              v-model="image.userSetWidth.current"
+              @mousemove="updateImageSize(image.userSetWidth.current)"
+              @change="updateImageSize(image.userSetWidth.current)"
+              :min="image.userSetWidth.min"
+              :max="image.userSetWidth.max">
           </div>
         </div>
 
         <div class="filter--panel px-3 pt-2">
           <h4>Filters</h4>
-          <div class="form-group" v-for="(filter, i) in filters" :key="i">
-            <label :for="filter.name">{{ filter.name }}</label>
+          <div class="form-group" 
+            v-for="(filter, i) in filters" 
+            :key="i">
+            <label 
+              class="mb-0"
+              :for="filter.name">{{ filter.name }}
+            </label>
             <input 
               class="form-control" 
               type="range" 
@@ -33,6 +52,16 @@
               :aria-valuemax="filter.max"
               :aria-valuenow="filter.current">
           </div>
+          <div class="action-buttons flexbox-space-between">
+            <button 
+              class="btn btn-primary py-1"
+              @click="saveImage">
+              Save Image
+            </button>
+            <button class="btn btn-outline-danger py-1">
+              Reset Filters
+            </button>
+          </div>
         </div>
         
       </div>
@@ -40,9 +69,15 @@
       <section class="display--container my-4">
         <img 
           class="display--image card" 
+          v-show="image.source"
+          :class="{ 'image-loaded': image.source }"
           :src="image.source" 
           alt="">
       </section>
+
+      <div class="canvas--wrapper">
+        <canvas id="canvas"></canvas>
+      </div>
       
     </div>
   </div>
@@ -58,41 +93,78 @@ export default {
     return { 
       image: {
         source: '',
-        maxWidth: '90%',
-        userSetWidth: '',
+        userSetWidth: {
+          min: 10,
+          max: 90,
+          current: 90,
+        },
       },
-
       filters: {
         blur: {
           name: 'blur',
           min: 0,
-          max: 40,
+          max: 5,
           current: 0,
           suffix: 'px'
         },
         brightness: {
           name: 'brightness',
-          min: 25,
+          min: 50,
           max: 150,
           current: 100,
           suffix: '%'
+        },
+        contrast: {
+          name: 'contrast',
+          min: 50,
+          max: 250,
+          current: 100,
+          suffix: '%'
+        },
+        hueRotate: {
+          name: 'hue-rotate',
+          min: 0,
+          max: 360,
+          current: 0,
+          suffix: 'deg'
+        },
+        invert: {
+          name: 'invert',
+          min: 0,
+          max: 100,
+          current: 0,
+          suffix: '%'
+        },
+        saturate: {
+          name: 'saturate',
+          min: 0,
+          max: 300,
+          current: 100,
+          suffix: '%'
+        },
+        sepia: {
+          name: 'sepia',
+          min: 0,
+          max: 100,
+          current: 0,
+          suffix: '%'
         }
-        // brightness: 0,    // %
-        // contrast: 0,      // %
-        // grayscale: 0,     // %
-        // hueRotate: 0,     // deg
-        // invert: 0,        // %
-        // opacity: 0,       // %
-        // saturate: 0,      // %
-        // sepia: 0,         // %
       }
     }
   },
   methods: {
-    updateFilterValue(filter, ) {
-
+    updateFilterValue(filter) {
       console.log(`--${filter.name}`, `${filter.current}${filter.suffix}`)
       document.documentElement.style.setProperty(`--${filter.name}`, `${filter.current}${filter.suffix}`)
+    },
+    updateImageSize(value) {
+      console.log(`--userSetWidth`, value + '%')
+      document.documentElement.style.setProperty(`--userSetWidth`, value + '%')
+    },
+    saveImage(){
+      const canvas = document.getElementById('canvas')
+      const ctx = canvas.getContext('2d')
+      console.log(ctx)
     }
   },
 
@@ -105,7 +177,16 @@ export default {
 
 :root {
   --blur: 0px;
-  --brightness: 0%;
+  --brightness: 100%;
+  --contrast: 100%;
+  --grayscale: 0%;
+  --hue-rotate: 0deg;
+  --invert: 0%;
+  --opacity: 100%;
+  --saturate: 100%;
+  --sepia: 0%;
+
+  --userSetWidth: 90%;
 
 }
 
@@ -143,6 +224,12 @@ body {
   border-top: 1px solid #000;
 }
 
+.flexbox-space-between {
+  display: flex;
+  flex: 1;
+  justify-content: space-between
+}
+
 .display--container {
   display: flex;
   flex: 1;
@@ -152,11 +239,24 @@ body {
 
 .display--image {
 
-  filter: blur(var(--blur));
-  filter: brightness(var(--brightness));
-
+  filter: 
+    blur(var(--blur))
+    brightness(var(--brightness))
+    contrast(var(--contrast))
+    grayscale(var(--grayscale))
+    hue-rotate(var(--hue-rotate))
+    invert(var(--invert))
+    opacity(var(--opacity))
+    saturate(var(--saturate))
+    sepia(var(--sepia));
+    
   max-width: 90%;
-  border: 1px solid #212121;
+  width: var(--userSetWidth)
+}
+
+.display--image.image-loaded {
+  border:1px solid #000;
+  padding: 1rem;
 }
 
 
