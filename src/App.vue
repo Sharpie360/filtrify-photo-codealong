@@ -14,19 +14,12 @@
               class="mb-0">
               <h4>Image URL</h4>
             </label>
-            <input type="text" class="form-control" id="custom-image-input" v-model="image.source">
-          </div>
-          <div class="form-group">
-            <label for="user-set-width-input">Image Size</label>
             <input 
-              type="range" 
-              id="user-set-width-input" 
-              class="form-control"
-              v-model="image.userSetWidth.current"
-              @mousemove="updateImageSize(image.userSetWidth.current)"
-              @change="updateImageSize(image.userSetWidth.current)"
-              :min="image.userSetWidth.min"
-              :max="image.userSetWidth.max">
+              type="text" 
+              class="form-control" 
+              id="custom-image-input" 
+              v-model="image.source"
+              @input="getImageSizePX">
           </div>
         </div>
 
@@ -68,24 +61,29 @@
       
       <section class="display--container my-4">
         <img 
+          id="image"
           class="display--image card" 
           v-show="image.source"
           :class="{ 'image-loaded': image.source }"
           :src="image.source" 
           alt="">
       </section>
-
-      <div class="canvas--wrapper">
-        <canvas id="canvas"></canvas>
-      </div>
-      
     </div>
+
+    <div class="canvas--wrapper" v-show="false">
+      <canvas 
+        id="canvas" 
+        :width="image.size.width"
+        :height="image.size.height">
+      </canvas>
+    </div>
+      
   </div>
 </template>
 
 <script>
 
-const displayImageTag = document.querySelector('.display--image');
+
 
 export default {
   name: 'app',
@@ -93,10 +91,9 @@ export default {
     return { 
       image: {
         source: '',
-        userSetWidth: {
-          min: 10,
-          max: 90,
-          current: 90,
+        size: {
+          width: 0,
+          height: 0
         },
       },
       filters: {
@@ -152,19 +149,30 @@ export default {
       }
     }
   },
+  created() {
+    const canvas = document.getElementById('canvas')
+    const ctx = canvas.getContext('2d')
+  },
   methods: {
+    getImageSizePX () {
+      const image = document.getElementById('image')
+      const imageComputedStyles = window.getComputedStyle(image)
+      // allow cpu to compute property to return px value
+      setTimeout(() => {
+        this.image.size.width = imageComputedStyles.width
+        this.image.size.height = imageComputedStyles.height
+      }, 100)
+            
+    },
+    // event method to update filter css variables
     updateFilterValue(filter) {
       console.log(`--${filter.name}`, `${filter.current}${filter.suffix}`)
       document.documentElement.style.setProperty(`--${filter.name}`, `${filter.current}${filter.suffix}`)
     },
-    updateImageSize(value) {
-      console.log(`--userSetWidth`, value + '%')
-      document.documentElement.style.setProperty(`--userSetWidth`, value + '%')
-    },
-    saveImage(){
-      const canvas = document.getElementById('canvas')
-      const ctx = canvas.getContext('2d')
-      console.log(ctx)
+    saveImage(ctx){
+      const image = document.getElementById('image')
+      // ctx.drawImage(this.image.source, 0, 0, canvas.width, canvas.height);
+      
     }
   },
 
@@ -175,19 +183,17 @@ export default {
 <style>
 @import './assets/css/bootstrapv3.css';
 
+/*
+  root level css vars, targeted with javascript
+*/
 :root {
   --blur: 0px;
   --brightness: 100%;
   --contrast: 100%;
-  --grayscale: 0%;
   --hue-rotate: 0deg;
   --invert: 0%;
-  --opacity: 100%;
   --saturate: 100%;
   --sepia: 0%;
-
-  --userSetWidth: 90%;
-
 }
 
 /* consistant full bg color regardless of size */ 
@@ -209,10 +215,13 @@ body {
   height: 3rem;
 }
 
-/* adjust height to account for navbar height CALC */
+/* 
+  adjust height to account for navbar height CALC 
+  18rem for panel, auto for auto size container, for collapsing the panel
+*/
 .layout-grid {
   display: grid;
-  grid-template-columns: 1fr 4fr;
+  grid-template-columns: 18rem auto;
   height: calc(100% - 3rem);
 }
 
@@ -224,12 +233,18 @@ body {
   border-top: 1px solid #000;
 }
 
+/* 
+  flexbox utility class used globally
+*/
 .flexbox-space-between {
   display: flex;
   flex: 1;
   justify-content: space-between
 }
 
+/*
+  flexbox on display container to center image vertically and horizontally
+*/
 .display--container {
   display: flex;
   flex: 1;
@@ -237,21 +252,23 @@ body {
   align-items: center;
 }
 
-.display--image {
 
+/*
+  filter list
+  max width of image relative to container
+  use set width inside set range
+*/
+.display--image {
   filter: 
     blur(var(--blur))
     brightness(var(--brightness))
     contrast(var(--contrast))
-    grayscale(var(--grayscale))
     hue-rotate(var(--hue-rotate))
     invert(var(--invert))
-    opacity(var(--opacity))
     saturate(var(--saturate))
     sepia(var(--sepia));
     
   max-width: 90%;
-  width: var(--userSetWidth)
 }
 
 .display--image.image-loaded {
