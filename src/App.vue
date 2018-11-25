@@ -63,27 +63,36 @@
         <img 
           id="image"
           class="display--image card" 
+          crossOrigin="Anonymous"
           v-show="image.source"
           :class="{ 'image-loaded': image.source }"
           :src="image.source" 
           alt="">
       </section>
-    </div>
-
-    <div class="canvas--wrapper" v-show="false">
+    <div class="canvas--wrapper" v-show="true">
       <canvas 
         id="canvas" 
         :width="image.size.width"
         :height="image.size.height">
       </canvas>
     </div>
+    </div>
+
       
   </div>
 </template>
 
 <script>
 
-
+function downloadURI(uri, name) {
+  let link = document.createElement("a");
+  link.download = name;
+  link.href = uri;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  link.remove();
+}
 
 export default {
   name: 'app',
@@ -95,63 +104,63 @@ export default {
           width: 0,
           height: 0
         },
+        downloadQuality: 'fullQuality'
       },
-      filters: {
-        blur: {
+      filters: [
+        {
           name: 'blur',
           min: 0,
           max: 5,
           current: 0,
           suffix: 'px'
         },
-        brightness: {
+        {
           name: 'brightness',
           min: 50,
           max: 150,
           current: 100,
           suffix: '%'
         },
-        contrast: {
+        {
           name: 'contrast',
           min: 50,
           max: 250,
           current: 100,
           suffix: '%'
         },
-        hueRotate: {
+        {
           name: 'hue-rotate',
           min: 0,
           max: 360,
           current: 0,
           suffix: 'deg'
         },
-        invert: {
+        {
           name: 'invert',
           min: 0,
           max: 100,
           current: 0,
           suffix: '%'
         },
-        saturate: {
+        {
           name: 'saturate',
           min: 0,
           max: 300,
           current: 100,
           suffix: '%'
         },
-        sepia: {
+        {
           name: 'sepia',
           min: 0,
           max: 100,
           current: 0,
           suffix: '%'
         }
-      }
+      ]
     }
   },
   created() {
-    const canvas = document.getElementById('canvas')
-    const ctx = canvas.getContext('2d')
+   
   },
   methods: {
     getImageSizePX () {
@@ -169,10 +178,27 @@ export default {
       console.log(`--${filter.name}`, `${filter.current}${filter.suffix}`)
       document.documentElement.style.setProperty(`--${filter.name}`, `${filter.current}${filter.suffix}`)
     },
-    saveImage(ctx){
-      const image = document.getElementById('image')
-      // ctx.drawImage(this.image.source, 0, 0, canvas.width, canvas.height);
+    saveImage(){
+      const filters = this.filters
+      let filterString = '';
+      filters.forEach(filter => {
+        filterString += `${filter.name}(${filter.current}${filter.suffix}) `
+      })
+      console.log(filterString)
+        
       
+      const image = document.getElementById('image')
+      const canvas = document.getElementById('canvas')
+      const ctx = canvas.getContext('2d')
+      ctx.filter = filterString
+      ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
+      console.log(ctx)
+      const imageURL = canvas.toDataURL();
+      const fullQuality = canvas.toDataURL('image/png', .5)
+      const medQuality = canvas.toDataURL('image/jpeg', 0.5)
+      const lowQuality = canvas.toDataURL('image/jpeg', 0.1)
+
+      downloadURI(fullQuality, 'test.jpeg')
     }
   },
 
