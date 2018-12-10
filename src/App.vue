@@ -7,7 +7,7 @@
     <div class="layout-grid">
       <div class="control-panel">
 
-        <div class="image--loader px-3 pt-2">
+        <!-- <div class="image--loader px-3 pt-2">
           <div class="form-group">
             <label 
               for="custom-image-input"
@@ -21,7 +21,8 @@
               v-model="image.source"
               @input="getImageSizePX">
           </div>
-        </div>
+        </div> -->
+        <cp-image-loader></cp-image-loader>
 
         <div class="filter--panel px-3 pt-2">
           <h4>Filters</h4>
@@ -63,7 +64,7 @@
         <img 
           id="image"
           class="display--image card" 
-          crossOrigin="Anonymous"
+          
           v-show="image.source"
           :class="{ 'image-loaded': image.source }"
           :src="image.source" 
@@ -83,6 +84,8 @@
 </template>
 
 <script>
+import eventBus from './eventBus.js'
+import ImageLoader from './components/control-panel/ImageLoader'
 
 function downloadURI(uri, name) {
   let link = document.createElement("a");
@@ -96,6 +99,7 @@ function downloadURI(uri, name) {
 
 export default {
   name: 'app',
+  
   data () {
     return { 
       image: {
@@ -104,7 +108,6 @@ export default {
           width: 0,
           height: 0
         },
-        downloadQuality: 'fullQuality'
       },
       filters: [
         {
@@ -159,8 +162,14 @@ export default {
       ]
     }
   },
+  components: {
+    'cp-image-loader': ImageLoader
+  },
   created() {
-   
+    eventBus.$on('loadImage', newImage => {
+      this.image.source = newImage.source
+      this.getImageSizePX()
+    })
   },
   methods: {
     getImageSizePX () {
@@ -186,7 +195,6 @@ export default {
       })
       console.log(filterString)
         
-      
       const image = document.getElementById('image')
       const canvas = document.getElementById('canvas')
       const ctx = canvas.getContext('2d')
@@ -194,11 +202,11 @@ export default {
       ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
       console.log(ctx)
       const imageURL = canvas.toDataURL();
-      const fullQuality = canvas.toDataURL('image/png', .5)
+      // const fullQuality = canvas.toDataURL('image/png', .5)
       const medQuality = canvas.toDataURL('image/jpeg', 0.5)
       const lowQuality = canvas.toDataURL('image/jpeg', 0.1)
 
-      downloadURI(fullQuality, 'test.jpeg')
+      downloadURI(medQuality, 'test.jpeg')
     }
   },
 
