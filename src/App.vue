@@ -6,71 +6,15 @@
     
     <div class="layout-grid">
       <div class="control-panel">
-
-        <!-- <div class="image--loader px-3 pt-2">
-          <div class="form-group">
-            <label 
-              for="custom-image-input"
-              class="mb-0">
-              <h4>Image URL</h4>
-            </label>
-            <input 
-              type="text" 
-              class="form-control" 
-              id="custom-image-input" 
-              v-model="image.source"
-              @input="getImageSizePX">
-          </div>
-        </div> -->
-        <cp-image-loader></cp-image-loader>
-
-        <div class="filter--panel px-3 pt-2">
-          <h4>Filters</h4>
-          <div class="form-group" 
-            v-for="(filter, i) in filters" 
-            :key="i">
-            <label 
-              class="mb-0"
-              :for="filter.name">{{ filter.name }}
-            </label>
-            <input 
-              class="form-control" 
-              type="range" 
-              v-model="filter.current"
-              @mousemove="updateFilterValue(filter)"
-              @change="updateFilterValue(filter)"
-              :id="filter.name"
-              :min="filter.min"
-              :max="filter.max" 
-              :aria-valuemin="filter.min"
-              :aria-valuemax="filter.max"
-              :aria-valuenow="filter.current">
-          </div>
-          <div class="action-buttons flexbox-space-between">
-            <button 
-              class="btn btn-primary py-1"
-              @click="saveImage">
-              Save Image
-            </button>
-            <button class="btn btn-outline-danger py-1">
-              Reset Filters
-            </button>
-          </div>
-        </div>
-        
+        <cp--image-loader></cp--image-loader>
+        <cp--filter-panel></cp--filter-panel>
       </div>
       
-      <section class="display--container my-4">
-        <img 
-          id="image"
-          class="display--image card" 
-          
-          v-show="image.source"
-          :class="{ 'image-loaded': image.source }"
-          :src="image.source" 
-          alt="">
-      </section>
-    <div class="canvas--wrapper" v-show="true">
+      <ic--display-image
+        :image="image">
+      </ic--display-image>
+      
+    <div class="canvas--wrapper" v-show="false">
       <canvas 
         id="canvas" 
         :width="image.size.width"
@@ -86,6 +30,8 @@
 <script>
 import eventBus from './eventBus.js'
 import ImageLoader from './components/control-panel/ImageLoader'
+import FilterPanel from './components/control-panel/FilterPanel'
+import DisplayImage from './components/image-container/DisplayImage'
 
 function downloadURI(uri, name) {
   let link = document.createElement("a");
@@ -109,61 +55,13 @@ export default {
           height: 0
         },
       },
-      filters: [
-        {
-          name: 'blur',
-          min: 0,
-          max: 5,
-          current: 0,
-          suffix: 'px'
-        },
-        {
-          name: 'brightness',
-          min: 50,
-          max: 150,
-          current: 100,
-          suffix: '%'
-        },
-        {
-          name: 'contrast',
-          min: 50,
-          max: 250,
-          current: 100,
-          suffix: '%'
-        },
-        {
-          name: 'hue-rotate',
-          min: 0,
-          max: 360,
-          current: 0,
-          suffix: 'deg'
-        },
-        {
-          name: 'invert',
-          min: 0,
-          max: 100,
-          current: 0,
-          suffix: '%'
-        },
-        {
-          name: 'saturate',
-          min: 0,
-          max: 300,
-          current: 100,
-          suffix: '%'
-        },
-        {
-          name: 'sepia',
-          min: 0,
-          max: 100,
-          current: 0,
-          suffix: '%'
-        }
-      ]
+      
     }
   },
   components: {
-    'cp-image-loader': ImageLoader
+    'cp--image-loader': ImageLoader,
+    'cp--filter-panel': FilterPanel,
+    'ic--display-image': DisplayImage
   },
   created() {
     eventBus.$on('loadImage', newImage => {
@@ -182,11 +80,7 @@ export default {
       }, 100)
             
     },
-    // event method to update filter css variables
-    updateFilterValue(filter) {
-      console.log(`--${filter.name}`, `${filter.current}${filter.suffix}`)
-      document.documentElement.style.setProperty(`--${filter.name}`, `${filter.current}${filter.suffix}`)
-    },
+    
     saveImage(){
       const filters = this.filters
       let filterString = '';
@@ -270,10 +164,38 @@ body {
 /* 
   flexbox utility class used globally
 */
+.flexbox {
+  display: flex;
+}
+.flex-1 {
+  flex: 1;
+}
+.flex-2 {
+  flex: 2;
+}
+.flex-3 {
+  flex: 3;
+}
 .flexbox-space-between {
   display: flex;
   flex: 1;
-  justify-content: space-between
+  justify-content: space-between;
+}
+.flexbox-space-evenly {
+  display: flex;
+  flex: 1;
+  justify-content: space-evenly;
+}
+.flexbox-space-around {
+  display: flex;
+  flex: 1;
+  justify-content: space-around;
+}
+.flex-align-center {
+  align-items: center;
+}
+.flex-justify-center {
+  justify-content: center
 }
 
 /*
