@@ -1,5 +1,13 @@
 <template>
   <div class="image--loader px-3 pt-2">
+    <div class="upload-type--outer flexbox-space-between flex-align-center">
+      <h5 class="upload-type--label mb-0">Upload Type:</h5>
+      <div class="btn-group upload-type--btn-group">
+        <button class="btn btn-primary py-1 ">URL</button>
+        <button class="btn btn-secondary py-1">File</button>
+      </div>
+
+    </div>
     <div class="form-group">
       <label 
         for="custom-image-input"
@@ -22,6 +30,7 @@ import eventBus from '../../eventBus.js'
 export default {
   data () {
     return {
+      urlInput: true,  
       imageInput: {
         source: ''
       }
@@ -36,5 +45,7 @@ export default {
 </script>
 
 <style>
-
+.upload-type--label {
+  display: inline-block;
+}
 </style>
